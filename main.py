@@ -7,9 +7,8 @@
 
 #########################################################################
 # To do:
-# 用新的函数或过程来处理 get_poi 的返回信息，提取其中的地址（'name'）和类型（'typecode'）
 # 完善输出，尽量做成 Dict 的类型
-# 增加多线程和代理池
+# 增加休眠和代理池，使用多个 User Key 随机切换
 
 import json
 import urllib
@@ -86,16 +85,24 @@ if __name__ == "__main__":
             # Output Example: 
             # ID: 8831818741fffff , 坐标: 116.0841505 , 39.671631166666664 , 地址: 北京市房山区窦店镇G4京港澳高速
             print ('ID:', hexagon_id_key, ', 坐标:', center_position_longtitude, ',', center_position_latitude, ', 地址:', get_location('json', center_position_longtitude, center_position_latitude))
-            [get_poi_status, get_poi_info_count, get_poi_info_details] = get_poi(result_position, '130000|150000') # Search Types 为：政府机构及社会团体 (150000) 与 交通设施服务 (130000)，用 '|' 分隔
+            [returned_poi_status, returned_poi_info_count, returned_poi_info_details] = get_poi(result_position, '130000|150000') # Search Types 为：政府机构及社会团体 (150000) 与 交通设施服务 (130000)，用 '|' 分隔
 
             if (get_poi_status == '1'): # '0': 'Error: 未搜索到结果!', '-1': 'Error: 查询状态有误! 请检查用户 Key 是否合法!', '-2': '网络错误'（在 try 里面添加）
-                print (get_poi_info_count) 
-                print (get_poi_info_details)
+                print (returned_poi_info_count) 
+                print (returned_poi_info_details)
                 search_success = search_success + 1
-            elif (get_poi_status == '0'):
+                
+                returned_poi_info_dict = returned_poi_info_details[0] # 此时已经转为 dict 类型的数据
+                # 以下为返回信息中各个值的提取
+                returned_poi_name = returned_poi_info_dict['name']
+                returned_poi_id = returned_poi_info_dict['id']
+                returned_poi_location = returned_poi_info_dict['location']
+                returned_poi_type = returned_poi_info_dict['type']
+                returned_poi_typecode = returned_poi_info_dict['typecode']
+            elif (returned_poi_status == '0'):
                 print ('Error: 未搜索到结果!')
                 search_fail = search_fail + 1
-            elif (get_poi_status == '-1'):
+            elif (returned_poi_status == '-1'):
                 print ('Error: 查询状态有误! 请检查用户 Key 是否合法!')
                 search_error = search_error + 1
                
