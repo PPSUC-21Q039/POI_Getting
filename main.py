@@ -43,6 +43,9 @@ def get_location(returned_information_format, input_longtitude, input_latitude):
     else:
         return 'Error: 输入有误!'
 
+def process_poi():
+    return
+
 if __name__ == "__main__":
     try:
         with open('./station_split_by_h3.json', 'r', encoding='utf8') as fp:
