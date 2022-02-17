@@ -15,7 +15,7 @@ import json
 import urllib
 from requests.api import request
 
-USER_KEY = 'aad49afa17b46e85e060bbe252f25a80' # 用户 Key 
+USER_KEY = 'aad49afa17b46e85e060bbe252f25a80' # User Key  
 
 def get_poi(processeed_position, result_types): # 完成前记得添加 try，其中 except 的返回值是 -2
     # Url Example: https://restapi.amap.com/v5/place/polygon?key=aad49afa17b46e85e060bbe252f25a80&polygon=地址&types=类型代码
@@ -42,9 +42,6 @@ def get_location(returned_information_format, input_longtitude, input_latitude):
             return 'Error: 查询状态有误!'
     else:
         return 'Error: 输入有误!'
-
-def process_poi():
-    return
 
 if __name__ == "__main__":
     try:
@@ -94,7 +91,7 @@ if __name__ == "__main__":
             if (get_poi_status == '1'): # '0': 'Error: 未搜索到结果!', '-1': 'Error: 查询状态有误! 请检查用户 Key 是否合法!', '-2': '网络错误'（在 try 里面添加）
                 print (get_poi_info_count) 
                 print (get_poi_info_details)
-                search_success = search_success +1
+                search_success = search_success + 1
             elif (get_poi_status == '0'):
                 print ('Error: 未搜索到结果!')
                 search_fail = search_fail + 1
