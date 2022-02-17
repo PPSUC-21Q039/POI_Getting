@@ -87,7 +87,7 @@ if __name__ == "__main__":
                 search_success = search_success +1 
             elif (get_poi_status == '0'):
                 print ('Error: 未搜索到结果!')
-                search_fail = search_fail + 1 
+                search_fail = search_fail + 1
             elif (get_poi_status == '-1'):
                 print ('Error: 查询状态有误! 请检查用户 Key 是否合法!')
                 search_error = search_error + 1
