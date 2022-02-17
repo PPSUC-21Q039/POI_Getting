@@ -44,6 +44,7 @@ if __name__ == "__main__":
     except:
         print ('打开文件 (station_split_by_h3.json) 错误!')
         quit()
+
     # 统计数据
     police_station_quantity = 0 # 派出所数量
     search_success = 0 # 搜索到的数量
@@ -81,10 +82,10 @@ if __name__ == "__main__":
             print ('ID:', hexagon_id_key, ', 坐标:', center_position_longtitude, ',', center_position_latitude, ', 地址:', get_location('json', center_position_longtitude, center_position_latitude))
             [get_poi_status, get_poi_info_count, get_poi_info_details] = get_poi(result_position, '130000|150000') # Search Types 为：政府机构及社会团体 (150000) 与 交通设施服务 (130000)，用 '|' 分隔
 
-            if (get_poi_status == '1'): # '0': 'Error: 未搜索到结果!' '-1': 'Error: 查询状态有误! 请检查用户 Key 是否合法!' '-2': '网络错误'（在 try 里面添加）
+            if (get_poi_status == '1'): # '0': 'Error: 未搜索到结果!', '-1': 'Error: 查询状态有误! 请检查用户 Key 是否合法!', '-2': '网络错误'（在 try 里面添加）
                 print (get_poi_info_count) 
                 print (get_poi_info_details)
-                search_success = search_success +1 
+                search_success = search_success +1
             elif (get_poi_status == '0'):
                 print ('Error: 未搜索到结果!')
                 search_fail = search_fail + 1
