@@ -13,35 +13,46 @@ import time
 import json
 import random
 import urllib
+from retrying import retry
 from requests.api import request
 
 # User Key 
+# 以下五个为孟昊阳所有
 USER_KEY_1 = 'aad49afa17b46e85e060bbe252f25a80'
 USER_KEY_2 = '677d0126e70c3b35671c08a59ea52d78'
 USER_KEY_3 = '615e912ab6aa668d068a32fd6ce01ff3'
 USER_KEY_4 = '6b70e5ffb62e110b02b25d8904ee4a9d'
 USER_KEY_5 = '9f00e38285dc77b127c98e1a128af2be'
+# 以下五个为胡文强所有
+USER_KEY_6 = 'ebd9973f5dfce59e6dc2972dac0f4e39'
+USER_KEY_7 = '241153183e1f4ee347fdfadf9426174e'
+USER_KEY_8 = '818b3586534a2ae2c95baa0c371f483e'
+USER_KEY_9 = '65b7b13fbc79f8fd98fda675de28261e'
+USER_KEY_10 = '2709fc90cb839fd90dd020034a5f1db7'
 
 def user_key():
-    USER_KEY_LIST = [USER_KEY_1, USER_KEY_2, USER_KEY_3, USER_KEY_4, USER_KEY_5]
+    USER_KEY_LIST = [USER_KEY_1, USER_KEY_2, USER_KEY_3, USER_KEY_4, USER_KEY_5, USEER_KEY_6, USER_KEY_7, USEER_KEY_8, USEER_KEY_9, USER_KEY_10]
     return random.choice(USER_KEY_LIST)
 
+@retry(stop_max_attempt_number=5, wait_fixed=1000)
 def get_poi(processeed_position, result_types): 
     try: 
+        header = {"user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36"}
         # Url Example: https://restapi.amap.com/v5/place/polygon?key=aad49afa17b46e85e060bbe252f25a80&polygon=地址&types=类型代码
         url = 'https://restapi.amap.com/v5/place/polygon?' + 'key=' + str(user_key()).strip() + '&polygon=' + str(processeed_position).strip() + '&offset=24&types=' + str(result_types).strip()
-        response = urllib.request.urlopen(url)
+        response = urllib.request.urlopen(url, headers = header, timeout = 2)
         returned_data = json.load(response)
-
-        if (returned_data["status"] == '1'):
-            if (returned_data["count"] == '0'):
-                return ['0', '', ''] # 单纯没查到而已
-            return ('1', returned_data["count"], returned_data["pois"]) # 返回获取到 POI 信息
-        if (returned_data["status"] == '0'):
-            return ['-1', '', ''] # 查询失败, -1: Error: 查询状态有误!
     except:
         return ['-2', '', '']
+    if (returned_data["status"] == '1'):
+        if (returned_data["count"] == '0'):
+            return ['0', '', ''] # 单纯没查到而已
+        return ('1', returned_data["count"], returned_data["pois"]) # 返回获取到 POI 信息
+    if (returned_data["status"] == '0'):
+            return ['-1', '', ''] # 查询失败, -1: Error: 查询状态有误!
 
+
+@retry(stop_max_attempt_number=5, wait_fixed=1000)  
 def get_location(returned_information_format, input_longtitude, input_latitude):
     # Url example: https://restapi.amap.com/v3/geocode/regeo?output=xml&location=116.310003,39.991957&key=用户的key&radius=1000&extensions=类型 (all/base)
     if (str(input_longtitude).strip() != 'NaN' and str(input_latitude).strip() != 'NaN'):
@@ -79,6 +90,7 @@ if __name__ == "__main__":
         police_station_quantity = police_station_quantity + 1
 
         for hexagon_id_key in value: # hexagon_id_key 为每个六边形区域的ID
+            print ('  ', hexagon_id_key)
             material_position_data = str(value[hexagon_id_key]) # value[hexagon_id_key] 为六边形顶点的坐标值的集合，共七个
 
             # 处理得到适合 get_poi() 函数输入的坐标值
@@ -136,7 +148,7 @@ if __name__ == "__main__":
             elif (returned_poi_status == '-1'): 
                 print ('Error: 查询状态有误! 请检查用户 Key 是否合法!')
                 search_error = search_error + 1
-            time.sleep(1000) # 休眠 1000 ms
+            # time.sleep(1000) # 休眠 1000 ms
 
     # 写入字典
     json_str = json.dumps(result_dict)
