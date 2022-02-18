@@ -13,7 +13,7 @@ import time
 import json
 import random
 import urllib
-from retrying import retry
+# from retrying import retry
 from requests.api import request
 
 # User Key 
@@ -34,7 +34,7 @@ def user_key():
     USER_KEY_LIST = [USER_KEY_1, USER_KEY_2, USER_KEY_3, USER_KEY_4, USER_KEY_5, USEER_KEY_6, USER_KEY_7, USEER_KEY_8, USEER_KEY_9, USER_KEY_10]
     return random.choice(USER_KEY_LIST)
 
-@retry(stop_max_attempt_number=5, wait_fixed=1000)
+# @retry(stop_max_attempt_number=5, wait_fixed=1000)
 def get_poi(processeed_position, result_types): 
     try: 
         header = {"user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36"}
@@ -52,7 +52,7 @@ def get_poi(processeed_position, result_types):
             return ['-1', '', ''] # 查询失败, -1: Error: 查询状态有误!
 
 
-@retry(stop_max_attempt_number=5, wait_fixed=1000)  
+# @retry(stop_max_attempt_number=5, wait_fixed=1000)  
 def get_location(returned_information_format, input_longtitude, input_latitude):
     # Url example: https://restapi.amap.com/v3/geocode/regeo?output=xml&location=116.310003,39.991957&key=用户的key&radius=1000&extensions=类型 (all/base)
     if (str(input_longtitude).strip() != 'NaN' and str(input_latitude).strip() != 'NaN'):
@@ -69,8 +69,8 @@ def get_location(returned_information_format, input_longtitude, input_latitude):
 if __name__ == "__main__":
     start_time = time.time()
     try:
-        # with open('./station_split_by_h3.json', 'r', encoding='utf8') as fp:
-        with open('./test.json', 'r', encoding='utf8') as fp: # 目前为调试用
+        with open('./station_split_by_h3.json', 'r', encoding='utf8') as fp:
+        # with open('./test.json', 'r', encoding='utf8') as fp: # 目前为调试用
             json_data = json.load(fp)
     except:
         print ('打开文件 (station_split_by_h3.json) 错误!')
