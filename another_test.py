@@ -65,8 +65,8 @@ def get_location(returned_information_format, input_longtitude, input_latitude):
 if __name__ == "__main__":
     start_time = time.time()
     try:
-        # with open('./station_split_by_h3.json', 'r', encoding='utf8') as fp:
-        with open('./test.json', 'r', encoding='utf8') as fp: # 目前为调试用
+        with open('./station_split_by_h3.json', 'r', encoding='utf8') as fp:
+        # with open('./test.json', 'r', encoding='utf8') as fp: # 目前为调试用
             json_data = json.load(fp)
     except:
         print ('打开文件 (station_split_by_h3.json) 错误!')
