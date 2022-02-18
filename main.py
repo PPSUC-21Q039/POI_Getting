@@ -53,12 +53,16 @@ if __name__ == "__main__":
     # 统计数据
     police_station_quantity = 0 # 派出所数量
     search_success = 0 # 搜索到的数量
-    search_fail = 0 # 未搜到的数量
+    search_fail = 0 # 未搜索到的数量
     search_error = 0 # 发生错误的数量
 
+    result_dict = {}
+
     for police_station_key, value in json_data.items(): # police_station_key 为该派出所的名称，vlaue 为其后的所有键值对
-        print(police_station_key) 
+        # print(police_station_key) 
+        result_dict [police_station_key] = {} # 以派出所名称为 Dict 的第一个 Key
         police_station_quantity = police_station_quantity + 1
+
         for hexagon_id_key in value: # hexagon_id_key 为每个六边形区域的ID
             material_position_data = str(value[hexagon_id_key]) # value[hexagon_id_key] 为六边形顶点的坐标值的集合，共七个
 
@@ -84,25 +88,38 @@ if __name__ == "__main__":
             
             # Output Example: 
             # ID: 8831818741fffff , 坐标: 116.0841505 , 39.671631166666664 , 地址: 北京市房山区窦店镇G4京港澳高速
-            print ('ID:', hexagon_id_key, ', 坐标:', center_position_longtitude, ',', center_position_latitude, ', 地址:', get_location('json', center_position_longtitude, center_position_latitude))
-            [returned_poi_status, returned_poi_info_count, returned_poi_info_details] = get_poi(result_position, '130000|150000') # Search Types 为：政府机构及社会团体 (150000) 与 交通设施服务 (130000)，用 '|' 分隔
+            # print ('ID:', hexagon_id_key, ', 坐标:', center_position_longtitude, ',', center_position_latitude, ', 地址:', get_location('json', center_position_longtitude, center_position_latitude))
 
-            if (get_poi_status == '1'): # '0': 'Error: 未搜索到结果!', '-1': 'Error: 查询状态有误! 请检查用户 Key 是否合法!', '-2': '网络错误'（在 try 里面添加）
-                print (returned_poi_info_count) 
-                print (returned_poi_info_details)
+            [returned_poi_status, returned_poi_info_count, returned_poi_info_details] = get_poi(result_position, '130000|150000') # Search Types 为：政府机构及社会团体 (130000) 与 交通设施服务 (150000)，用 '|' 分隔
+            result_dict [police_station_key] [hexagon_id_key] = {"count": returned_poi_info_count, "center_point": {"center_position_longtitude": center_position_longtitude, "center_position_latitude": center_position_latitude, "center_location": get_location("json", center_position_longtitude, center_position_latitude)}} # 初始化第三层
+
+            if (returned_poi_status == '1'): # '0': 'Error: 未搜索到结果!', '-1': 'Error: 查询状态有误! 请检查用户 Key 是否合法!', '-2': '网络错误'（在 try 里面添加）
+                # print (returned_poi_info_count) 
+                # print (returned_poi_info_details)
                 search_success = search_success + 1
-                
-                returned_poi_info_dict = returned_poi_info_details[0] # 此时已经转为 dict 类型的数据
-                # 以下为返回信息中各个值的提取
-                returned_poi_name = returned_poi_info_dict['name']
-                returned_poi_id = returned_poi_info_dict['id']
-                returned_poi_location = returned_poi_info_dict['location']
-                returned_poi_type = returned_poi_info_dict['type']
-                returned_poi_typecode = returned_poi_info_dict['typecode']
+                result_count = 0
+                while int(result_count) < int(returned_poi_info_count):
+                    returned_poi_info_dict = returned_poi_info_details[result_count] # 此时已经转为 dict 类型的数据
+                    # 以下为返回信息中各个值的提取
+                    returned_poi_name = returned_poi_info_dict["name"]
+                    returned_poi_id = returned_poi_info_dict["id"]
+                    returned_poi_location = returned_poi_info_dict["location"]
+                    returned_poi_type = returned_poi_info_dict["type"]
+                    returned_poi_typecode = returned_poi_info_dict["typecode"]
+
+                    if (returned_poi_typecode[0:1] == '13'):
+                        result_dict [police_station_key] [hexagon_id_key] ["政府机构及社会团体"] = {"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location}
+                    elif (returned_poi_typecode[0:1] == '15'):
+                        result_dict [police_station_key] [hexagon_id_key] ["交通设施服务"] = {"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location}
+                    result_count = result_count + 1
+
+                    print (result_dict)
+
             elif (returned_poi_status == '0'):
-                print ('Error: 未搜索到结果!')
+                # print ('Error: 未搜索到结果!')
+                result_dict [police_station_key] [hexagon_id_key]["count"] = '0'
                 search_fail = search_fail + 1
-            elif (returned_poi_status == '-1'):
+            elif (returned_poi_status == '-1'): 
                 print ('Error: 查询状态有误! 请检查用户 Key 是否合法!')
                 search_error = search_error + 1
                
