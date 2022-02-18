@@ -40,7 +40,7 @@ def get_poi(processeed_position, result_types):
         header = {"user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36"}
         # Url Example: https://restapi.amap.com/v5/place/polygon?key=aad49afa17b46e85e060bbe252f25a80&polygon=地址&types=类型代码
         url = 'https://restapi.amap.com/v5/place/polygon?' + 'key=' + str(user_key()).strip() + '&polygon=' + str(processeed_position).strip() + '&offset=24&types=' + str(result_types).strip()
-        response = urllib.request.urlopen(url, headers = header, timeout = 2)
+        response = urllib.request.urlopen(url, headers = header, timeout = 10)
         returned_data = json.load(response)
     except:
         return ['-2', '', '']
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     result_dict = {} # 结果
 
     for police_station_key, value in json_data.items(): # police_station_key 为该派出所的名称，vlaue 为其后的所有键值对
-        print('正在处理:', police_station_key) 
+        print(police_station_quantity, ': 正在处理:', police_station_key) 
         result_dict [police_station_key] = {} # 以派出所名称为 Dict 的第一个 Key
         police_station_quantity = police_station_quantity + 1
 
