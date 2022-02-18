@@ -44,7 +44,8 @@ def get_location(returned_information_format, input_longtitude, input_latitude):
 
 if __name__ == "__main__":
     try:
-        with open('./station_split_by_h3.json', 'r', encoding='utf8') as fp:
+        # with open('./station_split_by_h3.json', 'r', encoding='utf8') as fp:
+        with open('./test.json', 'r', encoding='utf8') as fp:
             json_data = json.load(fp)
     except:
         print ('打开文件 (station_split_by_h3.json) 错误!')
@@ -56,7 +57,7 @@ if __name__ == "__main__":
     search_fail = 0 # 未搜索到的数量
     search_error = 0 # 发生错误的数量
 
-    result_dict = {}
+    result_dict = {} # 结果文件
 
     for police_station_key, value in json_data.items(): # police_station_key 为该派出所的名称，vlaue 为其后的所有键值对
         # print(police_station_key) 
@@ -107,9 +108,9 @@ if __name__ == "__main__":
                     returned_poi_type = returned_poi_info_dict["type"]
                     returned_poi_typecode = returned_poi_info_dict["typecode"]
 
-                    if (returned_poi_typecode[0:1] == '13'):
+                    if (returned_poi_typecode[0:2] == '13'):
                         result_dict [police_station_key] [hexagon_id_key] ["政府机构及社会团体"] = {"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location}
-                    elif (returned_poi_typecode[0:1] == '15'):
+                    elif (returned_poi_typecode[0:2] == '15'):
                         result_dict [police_station_key] [hexagon_id_key] ["交通设施服务"] = {"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location}
                     result_count = result_count + 1
 
@@ -122,4 +123,8 @@ if __name__ == "__main__":
             elif (returned_poi_status == '-1'): 
                 print ('Error: 查询状态有误! 请检查用户 Key 是否合法!')
                 search_error = search_error + 1
-               
+
+    # 写入字典
+    json_str = json.dumps(result_dict)
+    with open('result_dict.json', 'w') as json_file:
+        json_file.write(json_str)     
