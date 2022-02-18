@@ -7,9 +7,9 @@
 
 #########################################################################
 # To do:
-# 完善输出，尽量做成 Dict 的类型
 # 增加休眠和代理池，使用多个 User Key 随机切换
 
+import time
 import json
 import urllib
 from requests.api import request
@@ -17,17 +17,20 @@ from requests.api import request
 USER_KEY = 'aad49afa17b46e85e060bbe252f25a80' # User Key  
 
 def get_poi(processeed_position, result_types): # 完成前记得添加 try，其中 except 的返回值是 -2
-    # Url Example: https://restapi.amap.com/v5/place/polygon?key=aad49afa17b46e85e060bbe252f25a80&polygon=地址&types=类型代码
-    url = 'https://restapi.amap.com/v5/place/polygon?' + 'key=' + USER_KEY.strip() + '&polygon=' + str(processeed_position).strip() + '&types=' + str(result_types).strip()
-    response = urllib.request.urlopen(url)
-    returned_data = json.load(response)
+    try: 
+        # Url Example: https://restapi.amap.com/v5/place/polygon?key=aad49afa17b46e85e060bbe252f25a80&polygon=地址&types=类型代码
+        url = 'https://restapi.amap.com/v5/place/polygon?' + 'key=' + USER_KEY.strip() + '&polygon=' + str(processeed_position).strip() + '&types=' + str(result_types).strip()
+        response = urllib.request.urlopen(url)
+        returned_data = json.load(response)
 
-    if (returned_data["status"] == '1'):
-        if (returned_data["count"] == '0'):
-            return ['0', '', ''] # 单纯没查到而已
-        return ('1', returned_data["count"], returned_data["pois"]) # 返回获取到 POI 信息
-    if (returned_data["status"] == '0'):
-        return ['-1', '', ''] # 查询失败, -1: Error: 查询状态有误!
+        if (returned_data["status"] == '1'):
+            if (returned_data["count"] == '0'):
+                return ['0', '', ''] # 单纯没查到而已
+            return ('1', returned_data["count"], returned_data["pois"]) # 返回获取到 POI 信息
+        if (returned_data["status"] == '0'):
+            return ['-1', '', ''] # 查询失败, -1: Error: 查询状态有误!
+    except:
+        return ['-2', '', '']
 
 def get_location(returned_information_format, input_longtitude, input_latitude):
     # Url example: https://restapi.amap.com/v3/geocode/regeo?output=xml&location=116.310003,39.991957&key=用户的key&radius=1000&extensions=类型 (all/base)
@@ -43,9 +46,10 @@ def get_location(returned_information_format, input_longtitude, input_latitude):
         return 'Error: 输入有误!'
 
 if __name__ == "__main__":
+    start_time = time.time()
     try:
         # with open('./station_split_by_h3.json', 'r', encoding='utf8') as fp:
-        with open('./test.json', 'r', encoding='utf8') as fp:
+        with open('./test.json', 'r', encoding='utf8') as fp: # 目前为调试用
             json_data = json.load(fp)
     except:
         print ('打开文件 (station_split_by_h3.json) 错误!')
@@ -60,7 +64,7 @@ if __name__ == "__main__":
     result_dict = {} # 结果文件
 
     for police_station_key, value in json_data.items(): # police_station_key 为该派出所的名称，vlaue 为其后的所有键值对
-        # print(police_station_key) 
+        print('正在处理:', police_station_key) 
         result_dict [police_station_key] = {} # 以派出所名称为 Dict 的第一个 Key
         police_station_quantity = police_station_quantity + 1
 
@@ -113,8 +117,7 @@ if __name__ == "__main__":
                     elif (returned_poi_typecode[0:2] == '15'):
                         result_dict [police_station_key] [hexagon_id_key] ["交通设施服务"] = {"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location}
                     result_count = result_count + 1
-
-                    print (result_dict)
+                    # print (result_dict)
 
             elif (returned_poi_status == '0'):
                 # print ('Error: 未搜索到结果!')
@@ -127,4 +130,6 @@ if __name__ == "__main__":
     # 写入字典
     json_str = json.dumps(result_dict)
     with open('result_dict.json', 'w') as json_file:
-        json_file.write(json_str)     
+        json_file.write(json_str)
+    end_time = time.time()
+    print ('程序运行花费:', end_time - start_time, '共处理派出所数量:', police_station_quantity, ', 处理区块数量:', search_success + search_fail + search_error, ', 其中搜索到了:', search_success, ', 未搜索到:', search_fail, ', 发生错误:', search_error, ', 输出文件已写入到当前目录下的 result_dict.json 中')
