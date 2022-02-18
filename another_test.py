@@ -13,7 +13,6 @@ import time
 import json
 import random
 import urllib
-# from retrying import retry
 from requests.api import request
 
 # User Key 
@@ -40,6 +39,7 @@ def get_poi(processeed_position, result_types):
         url = 'https://restapi.amap.com/v5/place/polygon?' + 'key=' + str(user_key()).strip() + '&polygon=' + str(processeed_position).strip() + '&types=' + str(result_types).strip()
         response = urllib.request.urlopen(url)
         returned_data = json.load(response)
+
         if (returned_data["status"] == '1'):
             if (returned_data["count"] == '0'):
                 return ['0', '', ''] # 单纯没查到而已
@@ -49,8 +49,6 @@ def get_poi(processeed_position, result_types):
     except:
         return ['-2', '', '']
 
-
-# @retry(stop_max_attempt_number=5, wait_fixed=1000)  
 def get_location(returned_information_format, input_longtitude, input_latitude):
     # Url example: https://restapi.amap.com/v3/geocode/regeo?output=xml&location=116.310003,39.991957&key=用户的key&radius=1000&extensions=类型 (all/base)
     if (str(input_longtitude).strip() != 'NaN' and str(input_latitude).strip() != 'NaN'):
@@ -67,7 +65,7 @@ def get_location(returned_information_format, input_longtitude, input_latitude):
 if __name__ == "__main__":
     start_time = time.time()
     try:
-        #with open('./station_split_by_h3.json', 'r', encoding='utf8') as fp:
+        # with open('./station_split_by_h3.json', 'r', encoding='utf8') as fp:
         with open('./test.json', 'r', encoding='utf8') as fp: # 目前为调试用
             json_data = json.load(fp)
     except:
@@ -83,7 +81,7 @@ if __name__ == "__main__":
     result_dict = {} # 结果
 
     for police_station_key, value in json_data.items(): # police_station_key 为该派出所的名称，vlaue 为其后的所有键值对
-        print(police_station_quantity, ': 正在处理:', police_station_key) 
+        print(police_station_quantity + 1, ': 正在处理:', police_station_key) 
         result_dict [police_station_key] = {} # 以派出所名称为 Dict 的第一个 Key
         police_station_quantity = police_station_quantity + 1
 
