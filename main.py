@@ -29,7 +29,7 @@ def user_key():
 def get_poi(processeed_position, result_types): 
     try: 
         # Url Example: https://restapi.amap.com/v5/place/polygon?key=aad49afa17b46e85e060bbe252f25a80&polygon=地址&types=类型代码
-        url = 'https://restapi.amap.com/v5/place/polygon?' + 'key=' + str(user_key()).strip() + '&polygon=' + str(processeed_position).strip() + '&types=' + str(result_types).strip()
+        url = 'https://restapi.amap.com/v5/place/polygon?' + 'key=' + str(user_key()).strip() + '&polygon=' + str(processeed_position).strip() + '&offset=24&types=' + str(result_types).strip()
         response = urllib.request.urlopen(url)
         returned_data = json.load(response)
 
