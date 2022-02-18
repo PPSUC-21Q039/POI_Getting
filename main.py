@@ -7,7 +7,7 @@
 
 #########################################################################
 # To do:
-# 增加休眠和代理池
+# 增加代理池
 
 import time
 import json
@@ -26,7 +26,7 @@ def user_key():
     USER_KEY_LIST = [USER_KEY_1, USER_KEY_2, USER_KEY_3, USER_KEY_4, USER_KEY_5]
     return random.choice(USER_KEY_LIST)
 
-def get_poi(processeed_position, result_types): # 完成前记得添加 try，其中 except 的返回值是 -2
+def get_poi(processeed_position, result_types): 
     try: 
         # Url Example: https://restapi.amap.com/v5/place/polygon?key=aad49afa17b46e85e060bbe252f25a80&polygon=地址&types=类型代码
         url = 'https://restapi.amap.com/v5/place/polygon?' + 'key=' + str(user_key()).strip() + '&polygon=' + str(processeed_position).strip() + '&types=' + str(result_types).strip()
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     search_fail = 0 # 未搜索到的数量
     search_error = 0 # 发生错误的数量
 
-    result_dict = {} # 结果文件
+    result_dict = {} # 结果
 
     for police_station_key, value in json_data.items(): # police_station_key 为该派出所的名称，vlaue 为其后的所有键值对
         print('正在处理:', police_station_key) 
