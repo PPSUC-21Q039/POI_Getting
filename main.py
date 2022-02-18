@@ -7,19 +7,29 @@
 
 #########################################################################
 # To do:
-# 增加休眠和代理池，使用多个 User Key 随机切换
+# 增加休眠和代理池
 
 import time
 import json
+import random
 import urllib
 from requests.api import request
 
-USER_KEY = 'aad49afa17b46e85e060bbe252f25a80' # User Key  
+# User Key 
+USER_KEY_1 = 'aad49afa17b46e85e060bbe252f25a80'
+USER_KEY_2 = '677d0126e70c3b35671c08a59ea52d78'
+USER_KEY_3 = '615e912ab6aa668d068a32fd6ce01ff3'
+USER_KEY_4 = '6b70e5ffb62e110b02b25d8904ee4a9d'
+USER_KEY_5 = '9f00e38285dc77b127c98e1a128af2be'
+
+def user_key():
+    USER_KEY_LIST = [USER_KEY_1, USER_KEY_2, USER_KEY_3, USER_KEY_4, USER_KEY_5]
+    return random.choice(USER_KEY_LIST)
 
 def get_poi(processeed_position, result_types): # 完成前记得添加 try，其中 except 的返回值是 -2
     try: 
         # Url Example: https://restapi.amap.com/v5/place/polygon?key=aad49afa17b46e85e060bbe252f25a80&polygon=地址&types=类型代码
-        url = 'https://restapi.amap.com/v5/place/polygon?' + 'key=' + USER_KEY.strip() + '&polygon=' + str(processeed_position).strip() + '&types=' + str(result_types).strip()
+        url = 'https://restapi.amap.com/v5/place/polygon?' + 'key=' + str(user_key()).strip() + '&polygon=' + str(processeed_position).strip() + '&types=' + str(result_types).strip()
         response = urllib.request.urlopen(url)
         returned_data = json.load(response)
 
@@ -35,7 +45,7 @@ def get_poi(processeed_position, result_types): # 完成前记得添加 try，�
 def get_location(returned_information_format, input_longtitude, input_latitude):
     # Url example: https://restapi.amap.com/v3/geocode/regeo?output=xml&location=116.310003,39.991957&key=用户的key&radius=1000&extensions=类型 (all/base)
     if (str(input_longtitude).strip() != 'NaN' and str(input_latitude).strip() != 'NaN'):
-        url = 'https://restapi.amap.com/v3/geocode/regeo?output=' + str(returned_information_format).strip() + 'xml&location=' + str(input_longtitude).strip() + ',' + str(input_latitude).strip() + '&key=' + USER_KEY.strip() + '&radius=1000' + '&extensions=base'
+        url = 'https://restapi.amap.com/v3/geocode/regeo?output=' + str(returned_information_format).strip() + 'xml&location=' + str(input_longtitude).strip() + ',' + str(input_latitude).strip() + '&key=' + str(user_key()).strip() + '&radius=1000' + '&extensions=base'
         try:
             response = urllib.request.urlopen(url)
             returned_data = json.load(response)
@@ -126,6 +136,7 @@ if __name__ == "__main__":
             elif (returned_poi_status == '-1'): 
                 print ('Error: 查询状态有误! 请检查用户 Key 是否合法!')
                 search_error = search_error + 1
+            time.sleep(1000) # 休眠 1000 ms
 
     # 写入字典
     json_str = json.dumps(result_dict)
