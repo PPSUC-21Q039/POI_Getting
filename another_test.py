@@ -15,6 +15,10 @@ import random
 import urllib
 from requests.api import request
 
+# INPUT_FILE = 'test.json' # 测试用输入文件
+INPUT_FILE = 'station_split_by_h3.json' # 输入文件
+OUTPUT_FILE = 'result_dict_list.json' # 输出文件
+
 # User Key 
 # 以下五个为孟昊阳所有
 USER_KEY_1 = 'aad49afa17b46e85e060bbe252f25a80'
@@ -28,9 +32,6 @@ USER_KEY_7 = '241153183e1f4ee347fdfadf9426174e'
 USER_KEY_8 = '818b3586534a2ae2c95baa0c371f483e'
 USER_KEY_9 = '65b7b13fbc79f8fd98fda675de28261e'
 USER_KEY_10 = '2709fc90cb839fd90dd020034a5f1db7'
-
-INPUT_FILE = 'station_split_by_h3.json' # 输入文件
-OUTPUT_FILE = 'result_dict_list.json' # 输出文件
 
 def user_key():
     USER_KEY_LIST = [USER_KEY_1, USER_KEY_2, USER_KEY_3, USER_KEY_4, USER_KEY_5, USER_KEY_6, USER_KEY_7, USER_KEY_8, USER_KEY_9, USER_KEY_10]
