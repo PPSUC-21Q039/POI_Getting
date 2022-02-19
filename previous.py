@@ -15,10 +15,6 @@ import random
 import urllib
 from requests.api import request
 
-# INPUT_FILE = 'test.json' # 测试用输入文件
-INPUT_FILE = 'station_split_by_h3.json' # 输入文件
-OUTPUT_FILE = 'result_dict_list.json' # 输出文件
-
 # User Key 
 # 以下五个为孟昊阳所有
 USER_KEY_1 = 'aad49afa17b46e85e060bbe252f25a80'
@@ -38,16 +34,11 @@ def user_key():
     return random.choice(USER_KEY_LIST)
 
 def get_poi(processeed_position, result_types): 
-    #time1 = time.time()
     try: 
         # Url Example: https://restapi.amap.com/v5/place/polygon?key=aad49afa17b46e85e060bbe252f25a80&polygon=地址&types=类型代码
         url = 'https://restapi.amap.com/v5/place/polygon?' + 'key=' + str(user_key()).strip() + '&polygon=' + str(processeed_position).strip() + '&types=' + str(result_types).strip()
-        #time2 = time.time()
-        print("url:", time2 - time1)
         response = urllib.request.urlopen(url)
         returned_data = json.load(response)
-        #time3 = time.time()
-        print("request & load:", time3 - time2)
 
         if (returned_data["status"] == '1'):
             if (returned_data["count"] == '0'):
@@ -74,10 +65,11 @@ def get_location(returned_information_format, input_longtitude, input_latitude):
 if __name__ == "__main__":
     start_time = time.time()
     try:
-        with open(INPUT_FILE, 'r', encoding='utf8') as fp: # 目前为调试用
+        # with open('./station_split_by_h3.json', 'r', encoding='utf8') as fp:
+        with open('./test.json', 'r', encoding='utf8') as fp: # 目前为调试用
             json_data = json.load(fp)
     except:
-        print ('打开文件' + INPUT_FILE + '错误!')
+        print ('打开文件 (station_split_by_h3.json) 错误!')
         quit()
 
     # 统计数据
@@ -91,12 +83,10 @@ if __name__ == "__main__":
     for police_station_key, value in json_data.items(): # police_station_key 为该派出所的名称，vlaue 为其后的所有键值对
         print(police_station_quantity + 1, ': 正在处理:', police_station_key) 
         result_dict [police_station_key] = {} # 以派出所名称为 Dict 的第一个 Key
-        # result_list [police_station_key] = {} # 以派出所名称为 List 的第一个元素
         police_station_quantity = police_station_quantity + 1
 
         for hexagon_id_key in value: # hexagon_id_key 为每个六边形区域的ID
             print ('  ', hexagon_id_key)
-            result_dict [police_station_key] [hexagon_id_key] = [] # 以这个为名的列表
             material_position_data = str(value[hexagon_id_key]) # value[hexagon_id_key] 为六边形顶点的坐标值的集合，共七个
 
             # 处理得到适合 get_poi() 函数输入的坐标值
@@ -118,27 +108,13 @@ if __name__ == "__main__":
                 center_position_latitude = center_position_latitude + float(str(material_splitted_pairs[0]).strip()[0:9])
             center_position_longtitude = center_position_longtitude / 6 # 经度
             center_position_latitude = center_position_latitude / 6 # 纬度
+            
+            # Output Example: 
+            # ID: 8831818741fffff , 坐标: 116.0841505 , 39.671631166666664 , 地址: 北京市房山区窦店镇G4京港澳高速
+            # print ('ID:', hexagon_id_key, ', 坐标:', center_position_longtitude, ',', center_position_latitude, ', 地址:', get_location('json', center_position_longtitude, center_position_latitude))
 
-            #t2 = time.time()
-            #print("第一阶段:", t2 - start_time)
-            # 最TM耗时，就离谱
             [returned_poi_status, returned_poi_info_count, returned_poi_info_details] = get_poi(result_position, '130000|150000') # Search Types 为：政府机构及社会团体 (130000) 与 交通设施服务 (150000)，用 '|' 分隔
-
-            #poi_time = time.time()
-            #print("Get_poi:", poi_time - t2)
-
-            returned_center_location = get_location("json", center_position_longtitude, center_position_latitude)
-
-            #center_time = time.time()
-            #print("center location:", center_time - poi_time)
-
-            result_dict [police_station_key] [hexagon_id_key] = {"count": returned_poi_info_count, "center_point": {"center_position_longtitude": center_position_longtitude, "center_position_latitude": center_position_latitude, "center_location": returned_center_location}, "政府机构及社会团体": [], "交通设施服务": []} # 初始化第三层
-
-            #dict_time = time.time()
-            #print("dict time:", dict_time - center_time)
-
-            #t3 = time.time()
-            #print("第二阶段:", t3 - t2)
+            result_dict [police_station_key] [hexagon_id_key] = {"count": returned_poi_info_count, "center_point": {"center_position_longtitude": center_position_longtitude, "center_position_latitude": center_position_latitude, "center_location": get_location("json", center_position_longtitude, center_position_latitude)}} # 初始化第三层
 
             if (returned_poi_status == '1'): # '0': 'Error: 未搜索到结果!', '-1': 'Error: 查询状态有误! 请检查用户 Key 是否合法!', '-2': '网络错误'（在 try 里面添加）
                 # print (returned_poi_info_count) 
@@ -146,7 +122,6 @@ if __name__ == "__main__":
                 search_success = search_success + 1
                 result_count = 0
                 while int(result_count) < int(returned_poi_info_count):
-                    #t4 = time.time()
                     returned_poi_info_dict = returned_poi_info_details[result_count] # 此时已经转为 dict 类型的数据
                     # 以下为返回信息中各个值的提取
                     returned_poi_name = returned_poi_info_dict["name"]
@@ -155,19 +130,16 @@ if __name__ == "__main__":
                     returned_poi_type = returned_poi_info_dict["type"]
                     returned_poi_typecode = returned_poi_info_dict["typecode"]
 
-                    #b result_dict [police_station_key] [hexagon_id_key].append({"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location})
                     if (returned_poi_typecode[0:2] == '13'):
-                        result_dict [police_station_key] [hexagon_id_key] ["政府机构及社会团体"].append ({"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location})
+                        result_dict [police_station_key] [hexagon_id_key] ["政府机构及社会团体"] = {"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location}
                     elif (returned_poi_typecode[0:2] == '15'):
-                        result_dict [police_station_key] [hexagon_id_key] ["交通设施服务"].append ({"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location})
+                        result_dict [police_station_key] [hexagon_id_key] ["交通设施服务"] = {"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location}
                     result_count = result_count + 1
-                    #t5 = time.time()
-                    #print("While:", t5 - t4)
                     # print (result_dict)
 
             elif (returned_poi_status == '0'):
                 # print ('Error: 未搜索到结果!')
-                result_dict [police_station_key] [hexagon_id_key] [0] = '0' # 第 0 个就是 count 所处的位置
+                result_dict [police_station_key] [hexagon_id_key]["count"] = '0'
                 search_fail = search_fail + 1
             elif (returned_poi_status == '-1'): 
                 print ('Error: 查询状态有误! 请检查用户 Key 是否合法!')
@@ -176,7 +148,7 @@ if __name__ == "__main__":
 
     # 写入字典
     json_str = json.dumps(result_dict)
-    with open(OUTPUT_FILE, 'w') as json_file:
+    with open('result_dict.json', 'w') as json_file:
         json_file.write(json_str)
     end_time = time.time()
-    print ('程序运行花费:', end_time - start_time, '共处理派出所数量:', police_station_quantity, ', 处理区块数量:', search_success + search_fail + search_error, ', 其中搜索到了:', search_success, ', 未搜索到:', search_fail, ', 发生错误:', search_error, ', 输出文件已写入到当前目录下的' + OUTPUT_FILE + '中')
+    print ('程序运行花费:', end_time - start_time, '共处理派出所数量:', police_station_quantity, ', 处理区块数量:', search_success + search_fail + search_error, ', 其中搜索到了:', search_success, ', 未搜索到:', search_fail, ', 发生错误:', search_error, ', 输出文件已写入到当前目录下的 result_dict.json 中')
