@@ -65,8 +65,8 @@ def get_location(returned_information_format, input_longtitude, input_latitude):
 if __name__ == "__main__":
     start_time = time.time()
     try:
-        # with open('./station_split_by_h3.json', 'r', encoding='utf8') as fp:
-        with open('./test.json', 'r', encoding='utf8') as fp: # 目前为调试用
+        with open('./station_split_by_h3.json', 'r', encoding='utf8') as fp:
+        # with open('./test.json', 'r', encoding='utf8') as fp: # 目前为调试用
             json_data = json.load(fp)
     except:
         print ('打开文件 (station_split_by_h3.json) 错误!')
@@ -135,7 +135,7 @@ if __name__ == "__main__":
                     elif (returned_poi_typecode[0:2] == '15'):
                         result_dict [police_station_key] [hexagon_id_key] ["交通设施服务"] = {"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location}
                     result_count = result_count + 1
-                    # print (result_dict)
+                    print (result_dict)
 
             elif (returned_poi_status == '0'):
                 # print ('Error: 未搜索到结果!')
