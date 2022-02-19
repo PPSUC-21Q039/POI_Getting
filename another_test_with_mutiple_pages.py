@@ -37,22 +37,22 @@ def user_key():
     USER_KEY_LIST = [USER_KEY_1, USER_KEY_2, USER_KEY_3, USER_KEY_4, USER_KEY_5, USER_KEY_6, USER_KEY_7, USER_KEY_8, USER_KEY_9, USER_KEY_10]
     return random.choice(USER_KEY_LIST)
 
-def get_poi(processeed_position, result_types): 
+def get_poi(page_number, page_size, processeed_position, result_types): 
     try: 
         # Url Example: https://restapi.amap.com/v5/place/polygon?key=aad49afa17b46e85e060bbe252f25a80&polygon=地址&types=类型代码
-        url = 'https://restapi.amap.com/v5/place/polygon?' + 'key=' + str(user_key()).strip() + '&polygon=' + str(processeed_position).strip() + '&types=' + str(result_types).strip()
+        url = 'https://restapi.amap.com/v5/place/polygon?' + 'key=' + str(user_key()).strip() + '&polygon=' + str(processeed_position).strip() + '&types=' + str(result_types).strip() + '&offset=' + str(page_size).strip() + '&page_num=' + str(page_number).strip()
         response = urllib.request.urlopen(url)
         returned_data = json.load(response)
 
         if (returned_data["status"] == '1'):
             if (returned_data["count"] == '0'):
-                return ['0', '', ''] # 单纯没查到而已
+                return ['0', '0', ''] # 单纯没查到而已
             return ('1', returned_data["count"], returned_data["pois"]) # 返回获取到 POI 信息
         if (returned_data["status"] == '0'):
-            return ['-1', '', ''] # 查询失败, -1: Error: 查询状态有误!
+            return ['-1', '0', ''] # 查询失败, -1: Error: 查询状态有误!
     except:
         print ("Error: get_poi() 访问 API 失败!")
-        return ['-2', '', '']
+        return ['-2', '0', '']
 
 def get_location(returned_information_format, input_longtitude, input_latitude):
     # Url example: https://restapi.amap.com/v3/geocode/regeo?output=xml&location=116.310003,39.991957&key=用户的key&radius=1000&extensions=类型 (all/base)
@@ -117,32 +117,58 @@ if __name__ == "__main__":
             center_position_latitude = center_position_latitude / 6 # 纬度
 
             # 最TM耗时，就离谱
-            [returned_poi_status, returned_poi_info_count, returned_poi_info_details] = get_poi(result_position, '130000|150000') # Search Types 为：政府机构及社会团体 (130000) 与 交通设施服务 (150000)，用 '|' 分隔
+            [returned_poi_status, returned_poi_info_count, returned_poi_info_details] = get_poi('1', '20', result_position, '130000|150000') # Search Types 为：政府机构及社会团体 (130000) 与 交通设施服务 (150000)，用 '|' 分隔
 
             result_dict [police_station_key] [hexagon_id_key] = {"count": returned_poi_info_count, "center_point": {"center_position_longtitude": center_position_longtitude, "center_position_latitude": center_position_latitude, "center_location": get_location("json", center_position_longtitude, center_position_latitude)}, "政府机构及社会团体": [], "交通设施服务": []} # 初始化第三层
 
-                print ('        Count:', returned_poi_info_count)
-            if (returned_poi_status == '1'): # '0': 'Error: 未搜索到结果!', '-1': 'Error: 查询状态有误! 请检查用户 Key 是否合法!', '-2': '网络错误'（在 try 里面添加）
+            print ('        Count:', returned_poi_info_count)
+            if int(float(returned_poi_info_count)) < 20 and int(float(returned_poi_info_count)) > 0:
+                if (returned_poi_status == '1'): # '0': 'Error: 未搜索到结果!', '-1': 'Error: 查询状态有误! 请检查用户 Key 是否合法!', '-2': '网络错误'（在 try 里面添加）
                 # print (returned_poi_info_count) 
                 # print (returned_poi_info_details)
-                search_success = search_success + 1
-                result_count = 0
-                while int(result_count) < int(returned_poi_info_count):
-                    returned_poi_info_dict = returned_poi_info_details[result_count] # 此时已经转为 dict 类型的数据
-                    # 以下为返回信息中各个值的提取
-                    returned_poi_name = returned_poi_info_dict["name"]
-                    returned_poi_id = returned_poi_info_dict["id"]
-                    returned_poi_location = returned_poi_info_dict["location"]
-                    returned_poi_type = returned_poi_info_dict["type"]
-                    returned_poi_typecode = returned_poi_info_dict["typecode"]
+                    search_success = search_success + 1
+                    result_count = 0
+                    while int(result_count) < int(returned_poi_info_count):
+                        returned_poi_info_dict = returned_poi_info_details[result_count] # 此时已经转为 dict 类型的数据
+                        # 以下为返回信息中各个值的提取
+                        returned_poi_name = returned_poi_info_dict["name"]
+                        returned_poi_id = returned_poi_info_dict["id"]
+                        returned_poi_location = returned_poi_info_dict["location"]
+                        returned_poi_type = returned_poi_info_dict["type"]
+                        returned_poi_typecode = returned_poi_info_dict["typecode"]
 
-                    # result_dict [police_station_key] [hexagon_id_key].append({"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location})
-                    if (returned_poi_typecode[0:2] == '13'):
-                        result_dict [police_station_key] [hexagon_id_key] ["政府机构及社会团体"].append ({"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location})
-                    elif (returned_poi_typecode[0:2] == '15'):
-                        result_dict [police_station_key] [hexagon_id_key] ["交通设施服务"].append ({"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location})
-                    result_count = result_count + 1
+                        # result_dict [police_station_key] [hexagon_id_key].append({"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location})
+                        if (returned_poi_typecode[0:2] == '13'):
+                            result_dict [police_station_key] [hexagon_id_key] ["政府机构及社会团体"].append ({"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location})
+                        elif (returned_poi_typecode[0:2] == '15'):
+                            result_dict [police_station_key] [hexagon_id_key] ["交通设施服务"].append ({"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location})
+                        result_count = result_count + 1
                     # print (result_dict)
+            elif (int(returned_poi_info_count) >= 20):
+                while (returned_poi_info_dict != '0'):
+                    page_number = 2
+                    [returned_poi_status, returned_poi_info_count, returned_poi_info_details] = get_poi(page_number, '20', result_position, '130000|150000')
+                    if (returned_poi_status == '1'): # '0': 'Error: 未搜索到结果!', '-1': 'Error: 查询状态有误! 请检查用户 Key 是否合法!', '-2': '网络错误'（在 try 里面添加）
+                        # print (returned_poi_info_count) 
+                        # print (returned_poi_info_details)
+                        search_success = search_success + 1
+                        result_count = 0
+                        while int(result_count) < int(returned_poi_info_count):
+                            returned_poi_info_dict = returned_poi_info_details[result_count] # 此时已经转为 dict 类型的数据
+                            # 以下为返回信息中各个值的提取
+                            returned_poi_name = returned_poi_info_dict["name"]
+                            returned_poi_id = returned_poi_info_dict["id"]
+                            returned_poi_location = returned_poi_info_dict["location"]
+                            returned_poi_type = returned_poi_info_dict["type"]
+                            returned_poi_typecode = returned_poi_info_dict["typecode"]
+
+                        # result_dict [police_station_key] [hexagon_id_key].append({"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location})
+                        if (returned_poi_typecode[0:2] == '13'):
+                            result_dict [police_station_key] [hexagon_id_key] ["政府机构及社会团体"].append ({"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location})
+                        elif (returned_poi_typecode[0:2] == '15'):
+                            result_dict [police_station_key] [hexagon_id_key] ["交通设施服务"].append ({"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location})
+                        result_count = result_count + 1
+                    page_number = page_number + 1
 
             elif (returned_poi_status == '0'):
                 # print ('Error: 未搜索到结果!')
