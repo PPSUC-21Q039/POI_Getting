@@ -82,7 +82,6 @@ if __name__ == "__main__":
     search_error = 0 # 发生错误的数量
 
     result_dict = {} # 结果
-    # result_list = []
 
     for police_station_key, value in json_data.items(): # police_station_key 为该派出所的名称，vlaue 为其后的所有键值对
         print(police_station_quantity + 1, ': 正在处理:', police_station_key) 
@@ -115,14 +114,9 @@ if __name__ == "__main__":
             center_position_longtitude = center_position_longtitude / 6 # 经度
             center_position_latitude = center_position_latitude / 6 # 纬度
             
-            # Output Example: 
-            # ID: 8831818741fffff , 坐标: 116.0841505 , 39.671631166666664 , 地址: 北京市房山区窦店镇G4京港澳高速
-            # print ('ID:', hexagon_id_key, ', 坐标:', center_position_longtitude, ',', center_position_latitude, ', 地址:', get_location('json', center_position_longtitude, center_position_latitude))
-
             [returned_poi_status, returned_poi_info_count, returned_poi_info_details] = get_poi(result_position, '130000|150000') # Search Types 为：政府机构及社会团体 (130000) 与 交通设施服务 (150000)，用 '|' 分隔
             result_dict [police_station_key] [hexagon_id_key] = {"count": returned_poi_info_count, "center_point": {"center_position_longtitude": center_position_longtitude, "center_position_latitude": center_position_latitude, "center_location": get_location("json", center_position_longtitude, center_position_latitude)}, "政府机构及社会团体": [], "交通设施服务": []} # 初始化第三层
-            #result_dict [police_station_key] [hexagon_id_key].append (returned_poi_info_count)
-            #result_dict [police_station_key] [hexagon_id_key].append ({"center_position_longtitude": center_position_longtitude, "center_position_latitude": center_position_latitude, "center_location": get_location("json", center_position_longtitude, center_position_latitude)})
+
 
             if (returned_poi_status == '1'): # '0': 'Error: 未搜索到结果!', '-1': 'Error: 查询状态有误! 请检查用户 Key 是否合法!', '-2': '网络错误'（在 try 里面添加）
                 # print (returned_poi_info_count) 
@@ -140,10 +134,9 @@ if __name__ == "__main__":
 
                     #b result_dict [police_station_key] [hexagon_id_key].append({"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location})
                     if (returned_poi_typecode[0:2] == '13'):
-                        # result_dict [police_station_key] [hexagon_id_key] ["政府机构及社会团体"] = {"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location}
+
                         result_dict [police_station_key] [hexagon_id_key] ["政府机构及社会团体"].append ({"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location})
                     elif (returned_poi_typecode[0:2] == '15'):
-                        # result_dict [police_station_key] [hexagon_id_key] ["交通设施服务"] = {"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location}
                         result_dict [police_station_key] [hexagon_id_key] ["交通设施服务"].append ({"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location})
                     result_count = result_count + 1
                     # print (result_dict)
