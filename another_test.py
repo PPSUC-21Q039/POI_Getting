@@ -15,8 +15,8 @@ import random
 import urllib
 from requests.api import request
 
-# INPUT_FILE = 'test.json' # 测试用输入文件
-INPUT_FILE = 'station_split_by_h3.json' # 输入文件
+INPUT_FILE = 'test.json' # 测试用输入文件
+#INPUT_FILE = 'station_split_by_h3.json' # 输入文件
 OUTPUT_FILE = 'result_dict_list_final.json' # 输出文件
 
 # User Key 
@@ -40,7 +40,7 @@ def user_key():
 def get_poi(processeed_position, result_types): 
     try: 
         # Url Example: https://restapi.amap.com/v5/place/polygon?key=aad49afa17b46e85e060bbe252f25a80&polygon=地址&types=类型代码
-        url = 'https://restapi.amap.com/v5/place/polygon?' + 'key=' + str(user_key()).strip() + '&polygon=' + str(processeed_position).strip() + '&types=' + str(result_types).strip()
+        url = 'https://restapi.amap.com/v5/place/polygon?' + 'key=' + str(user_key()).strip() + '&polygon=' + str(processeed_position).strip() + '&types=' + str(result_types).strip() + '&page_size=24'
         response = urllib.request.urlopen(url)
         returned_data = json.load(response)
 
@@ -121,7 +121,7 @@ if __name__ == "__main__":
 
             result_dict [police_station_key] [hexagon_id_key] = {"count": returned_poi_info_count, "center_point": {"center_position_longtitude": center_position_longtitude, "center_position_latitude": center_position_latitude, "center_location": get_location("json", center_position_longtitude, center_position_latitude)}, "政府机构及社会团体": [], "交通设施服务": []} # 初始化第三层
 
-                print ('        Count:', returned_poi_info_count)
+            print ('        Count:', returned_poi_info_count)
             if (returned_poi_status == '1'): # '0': 'Error: 未搜索到结果!', '-1': 'Error: 查询状态有误! 请检查用户 Key 是否合法!', '-2': '网络错误'（在 try 里面添加）
                 # print (returned_poi_info_count) 
                 # print (returned_poi_info_details)
