@@ -65,8 +65,8 @@ def get_location(returned_information_format, input_longtitude, input_latitude):
 
 if __name__ == "__main__":
     start_time = time.time()
+    print ("正在打开:" + INPUT_FILE)
     try:
-        print ("正在打开:" + INPUT_FILE)
         with open(INPUT_FILE, 'r', encoding='utf8') as fp: # 目前为调试用
             json_data = json.load(fp)
     except:
