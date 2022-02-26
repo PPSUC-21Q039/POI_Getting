@@ -28,6 +28,7 @@ def user_key():
     USER_KEY_LIST = [USER_KEY_1, USER_KEY_2, USER_KEY_3, USER_KEY_4, USER_KEY_5, USER_KEY_6, USER_KEY_7, USER_KEY_8, USER_KEY_9, USER_KEY_10]
     return random.choice(USER_KEY_LIST)
 
+
 def get_poi(page_number, page_size, processeed_position, result_types): 
     try: 
         # Url Example: https://restapi.amap.com/v5/place/polygon?key=aad49afa17b46e85e060bbe252f25a80&polygon=地址&types=类型代码
@@ -46,6 +47,7 @@ def get_poi(page_number, page_size, processeed_position, result_types):
         print ("Error: get_poi() 访问 API 失败!")
         return ['-2', '0', '']
 
+
 def get_location(returned_information_format, input_longtitude, input_latitude):
     # Url example: https://restapi.amap.com/v3/geocode/regeo?output=xml&location=116.310003,39.991957&key=用户的key&radius=1000&extensions=类型 (all/base)
     if (str(input_longtitude).strip() != 'NaN' and str(input_latitude).strip() != 'NaN'):
@@ -59,6 +61,7 @@ def get_location(returned_information_format, input_longtitude, input_latitude):
             return 'Error: 查询状态有误!'
     else:
         return 'Error: 输入有误!'
+
 
 if __name__ == "__main__":
     start_time = time.time()
@@ -105,10 +108,10 @@ if __name__ == "__main__":
             center_position_latitude = 0 # 纬度
             for i in range (0,6): # 注意只求前六个的和
                 material_splitted_pairs = splitted_position[i].split(',')
-                center_position_longtitude = center_position_longtitude + float(str(material_splitted_pairs[1]).strip()[0:10])
-                center_position_latitude = center_position_latitude + float(str(material_splitted_pairs[0]).strip()[0:9])
-            center_position_longtitude = center_position_longtitude / 6 # 经度
-            center_position_latitude = center_position_latitude / 6 # 纬度
+                center_position_longtitude = float(center_position_longtitude) + float(str(material_splitted_pairs[1]).strip()[0:10])
+                center_position_latitude = float(center_position_latitude) + float(str(material_splitted_pairs[0]).strip()[0:9])
+            center_position_longtitude = float(center_position_longtitude) / 6 # 经度
+            center_position_latitude = float(center_position_latitude) / 6 # 纬度
 
             # 最TM耗时，就离谱
             [returned_poi_status, returned_poi_info_count, returned_poi_info_details] = get_poi('1', '20', result_position, '130000|150000') # Search Types 为：政府机构及社会团体 (130000) 与 交通设施服务 (150000)，用 '|' 分隔
