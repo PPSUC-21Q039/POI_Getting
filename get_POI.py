@@ -12,7 +12,7 @@ from requests.api import request
 
 # INPUT_FILE = 'test.json' # 测试用输入文件
 INPUT_FILE = './station_split_by_h3.json' # 输入文件
-OUTPUT_FILE = './result_dict_list_final_test.json' # 输出文件
+OUTPUT_FILE = './result_dict_list_final.json' # 输出文件
 
 PAGE_SIZE = 24 # 全局 page_size, 用于规定每页显示的数量
 
