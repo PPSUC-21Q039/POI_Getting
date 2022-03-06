@@ -38,7 +38,7 @@ def user_key():
 
 def get_poi(page,processeed_position, result_types):
     try:
-        # Url Example: https://restapi.amap.com/v5/place/polygon?key=aad49afa17b46e85e060bbe252f25a80&polygon=地址&types=类型代码
+        # Url Example: https://restapi.amap.com/v5/place/polygon?key=aad49afa17b46e85e060bbe252f25a80&polygon=地址&types=类型代码&page_size=每页的页数
         url = 'https://restapi.amap.com/v5/place/polygon?' + 'key=' + str(user_key()).strip() + '&polygon=' + str(processeed_position).strip() + '&types=' + str(result_types).strip() + '&page_size=' + str(PAGE_SIZE) + '&page_num=' + str(page).strip()
         response = urllib.request.urlopen(url)
         returned_data = json.load(response)
@@ -78,7 +78,7 @@ if __name__ == "__main__":
         print ('打开文件' + INPUT_FILE + '错误!')
         quit()
 
-    # 统计数据
+    # 初始化各项统计数据
     police_station_quantity = 0 # 派出所数量
     search_success = 0 # 搜索到的数量
     search_fail = 0 # 未搜索到的数量
@@ -118,21 +118,19 @@ if __name__ == "__main__":
             center_position_longtitude = center_position_longtitude / hex_len # 经度
             center_position_latitude = center_position_latitude / hex_len # 纬度
 
-            # 最TM耗时，就离谱
             for page_index in range(100):
                 [returned_poi_status, returned_poi_info_count, returned_poi_info_details] = get_poi(page_index+1,result_position, '130000|150000') # Search Types 为：政府机构及社会团体 (130000) 与 交通设施服务 (150000)，用 '|' 分隔
 
                 result_dict [police_station_key] [hexagon_id_key] = {"count": returned_poi_info_count, "center_point": {"center_position_longtitude": center_position_longtitude, "center_position_latitude": center_position_latitude, "center_location": get_location("json", center_position_longtitude, center_position_latitude)}, "政府机构及社会团体": [], "交通设施服务": []} # 初始化第三层
 
-                print ('        Count:', returned_poi_info_count)
-                # print（str（returned_poi_status））
+                print ('        Count:', returned_poi_info_count) # 输出本次查询到的 POI 个数
+                
                 if (returned_poi_status == '1'): # '0': 'Error: 未搜索到结果!', '-1': 'Error: 查询状态有误! 请检查用户 Key 是否合法!', '-2': '网络错误'（在 try 里面添加）
-                    # print (returned_poi_info_count)
-                    # print (returned_poi_info_details)
                     search_success = search_success + 1
                     result_count = 0
                     while int(result_count) < int(returned_poi_info_count):
                         returned_poi_info_dict = returned_poi_info_details[result_count] # 此时已经转为 dict 类型的数据
+
                         # 以下为返回信息中各个值的提取
                         returned_poi_name = returned_poi_info_dict["name"]
                         returned_poi_id = returned_poi_info_dict["id"]
@@ -140,7 +138,6 @@ if __name__ == "__main__":
                         returned_poi_type = returned_poi_info_dict["type"]
                         returned_poi_typecode = returned_poi_info_dict["typecode"]
 
-                        # result_dict [police_station_key] [hexagon_id_key].append({"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location})
                         if (returned_poi_typecode[0:2] == '13'):
                             result_dict [police_station_key] [hexagon_id_key] ["政府机构及社会团体"].append ({"name": returned_poi_name, "id": returned_poi_id, "type": returned_poi_type, "typecode": returned_poi_typecode, "location": returned_poi_location})
                         elif (returned_poi_typecode[0:2] == '15'):
