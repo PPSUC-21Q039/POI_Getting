@@ -150,13 +150,13 @@ if __name__ == "__main__":
                     print ('Error: 查询状态有误! 请检查用户 Key 是否合法!')
                     search_error = search_error + 1
                     
-                if returned_poi_info_count==" " or returned_poi_info_count=="":
-                    poi_count=0
+                if returned_poi_info_count == " " or returned_poi_info_count == "":
+                    poi_count = 0
                 else:
-                    poi_count=int(returned_poi_info_count)
-                    print("第"+str(page_index)+"页")
-                if poi_count<20:
-                        break
+                    poi_count = int(returned_poi_info_count)
+                    print ("第" + str(page_index) + "页")
+                if poi_count < 20:
+                    break
             # time.sleep(1000) # 休眠 1000 ms
 
     # 写入字典
