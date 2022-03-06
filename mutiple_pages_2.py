@@ -182,3 +182,4 @@ if __name__ == "__main__":
         json_file.write(json_str)
     end_time = time.time()
     print ('程序运行花费:', end_time - start_time, '共处理派出所数量:', police_station_quantity, '处理六边形区块数量:', block_quantity, ', 共搜索次数:', search_success + search_fail + search_error, ', 其中搜索到了:', search_success, ', 未搜索到:', search_fail, ', 发生错误:', search_error, ', 输出文件已写入到当前目录下的' + OUTPUT_FILE + '中')
+
