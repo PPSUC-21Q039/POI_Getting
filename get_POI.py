@@ -12,7 +12,9 @@ from requests.api import request
 
 # INPUT_FILE = 'test.json' # 测试用输入文件
 INPUT_FILE = './station_split_by_h3.json' # 输入文件
-OUTPUT_FILE = './result_dict_list_final.json' # 输出文件
+OUTPUT_FILE = './result_dict_list_final_test.json' # 输出文件
+
+PAGE_SIZE = 24 # 全局 page_size, 用于规定每页显示的数量
 
 # User Key
 # 以下五个为孟昊阳所有
@@ -28,14 +30,16 @@ USER_KEY_8 = '818b3586534a2ae2c95baa0c371f483e'
 USER_KEY_9 = '65b7b13fbc79f8fd98fda675de28261e'
 USER_KEY_10 = '2709fc90cb839fd90dd020034a5f1db7'
 
+
 def user_key():
     USER_KEY_LIST = [USER_KEY_1, USER_KEY_2, USER_KEY_3, USER_KEY_4, USER_KEY_5, USER_KEY_6, USER_KEY_7, USER_KEY_8, USER_KEY_9, USER_KEY_10]
     return random.choice(USER_KEY_LIST)
 
+
 def get_poi(page,processeed_position, result_types):
     try:
         # Url Example: https://restapi.amap.com/v5/place/polygon?key=aad49afa17b46e85e060bbe252f25a80&polygon=地址&types=类型代码
-        url = 'https://restapi.amap.com/v5/place/polygon?' + 'key=' + str(user_key()).strip() + '&polygon=' + str(processeed_position).strip() + '&types=' + str(result_types).strip() + '&page_size=24' + '&page_num=' + str(page).strip()
+        url = 'https://restapi.amap.com/v5/place/polygon?' + 'key=' + str(user_key()).strip() + '&polygon=' + str(processeed_position).strip() + '&types=' + str(result_types).strip() + '&page_size=' + str(PAGE_SIZE) + '&page_num=' + str(page).strip()
         response = urllib.request.urlopen(url)
         returned_data = json.load(response)
 
@@ -48,6 +52,7 @@ def get_poi(page,processeed_position, result_types):
     except:
         print ("Error: get_poi() 访问 API 失败!")
         return ['-2', '', '']
+
 
 def get_location(returned_information_format, input_longtitude, input_latitude):
     # Url example: https://restapi.amap.com/v3/geocode/regeo?output=xml&location=116.310003,39.991957&key=用户的key&radius=1000&extensions=类型 (all/base)
@@ -63,10 +68,11 @@ def get_location(returned_information_format, input_longtitude, input_latitude):
     else:
         return 'Error: 输入有误!'
 
+
 if __name__ == "__main__":
     start_time = time.time()
     try:
-        with open(INPUT_FILE, 'r', encoding='utf8') as fp: # 目前为调试用
+        with open(INPUT_FILE, 'r', encoding = 'utf8') as fp: # 目前为调试用
             json_data = json.load(fp)
     except:
         print ('打开文件' + INPUT_FILE + '错误!')
@@ -155,7 +161,7 @@ if __name__ == "__main__":
                 else:
                     poi_count = int(returned_poi_info_count)
                     print ("第" + str(page_index) + "页")
-                if poi_count < 20:
+                if poi_count < PAGE_SIZE:
                     break
             # time.sleep(1000) # 休眠 1000 ms
 
