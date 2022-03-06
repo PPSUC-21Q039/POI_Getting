@@ -119,7 +119,7 @@ if __name__ == "__main__":
                 result_dict [police_station_key] [hexagon_id_key] = {"count": returned_poi_info_count, "center_point": {"center_position_longtitude": center_position_longtitude, "center_position_latitude": center_position_latitude, "center_location": get_location("json", center_position_longtitude, center_position_latitude)}, "政府机构及社会团体": [], "交通设施服务": []} # 初始化第三层
 
                 print ('        Count:', returned_poi_info_count)
-#                 print（str（returned_poi_status））
+                # print（str（returned_poi_status））
                 if (returned_poi_status == '1'): # '0': 'Error: 未搜索到结果!', '-1': 'Error: 查询状态有误! 请检查用户 Key 是否合法!', '-2': '网络错误'（在 try 里面添加）
                     # print (returned_poi_info_count)
                     # print (returned_poi_info_details)
